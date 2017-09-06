@@ -4,6 +4,7 @@ import api.ReceiptResponse;
 import generated.tables.records.ReceiptsRecord;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
+import org.jooq.Result;
 import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
@@ -29,6 +30,22 @@ public class ReceiptDao {
         checkState(receiptsRecord != null && receiptsRecord.getId() != null, "Insert failed");
 
         return receiptsRecord.getId();
+}
+
+    public boolean exists(int id) {
+
+        Result receiptsRecord = dsl.select().from(RECEIPTS)
+                .where(RECEIPTS.ID.eq(id)).fetch();
+
+        int sizeCheck = receiptsRecord.size();
+
+        if(sizeCheck == 1) {
+            return true;
+        }
+
+        else {
+            return false;
+        }
     }
 
     public List<ReceiptsRecord> getAllReceipts() {
