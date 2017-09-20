@@ -3,7 +3,9 @@ package controllers;
 import api.CreateReceiptRequest;
 import api.ReceiptResponse;
 import dao.ReceiptDao;
+import dao.TagDao;
 import generated.tables.records.ReceiptsRecord;
+import generated.tables.records.TagsRecord;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 @Produces(MediaType.APPLICATION_JSON)
 public class ReceiptController {
     final ReceiptDao receipts;
+    TagDao tags;
 
     public ReceiptController(ReceiptDao receipts) {
         this.receipts = receipts;
@@ -31,6 +34,16 @@ public class ReceiptController {
     @GET
     public List<ReceiptResponse> getReceipts() {
         List<ReceiptsRecord> receiptRecords = receipts.getAllReceipts();
+//        List<TagsRecord> tagRecords = tags.getAllTags();
+//        for ( ReceiptsRecord receipt : receiptRecords ) {
+//            int receiptId = receipt.getId();
+//            for (TagsRecord tag: tagRecords) {
+//                if (receiptId.equals(tag.getReceiptid())){
+//                    receipt.tag = tag;
+//                }
+//            }
+//
+//        }
         return receiptRecords.stream().map(ReceiptResponse::new).collect(toList());
     }
 }

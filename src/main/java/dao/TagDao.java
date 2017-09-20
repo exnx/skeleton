@@ -23,10 +23,10 @@ public class TagDao {
     }
 
     // check to see if receipt already tagged by using a query
-    public boolean exists(String tag, int id) {
+    public boolean exists(String tag, int receiptId) {
 
         Result tagsRecord = dsl.select().from(TAGS)
-                .where(TAGS.ID.eq(id))
+                .where(TAGS.RECEIPTID.eq(receiptId))
                 .and(TAGS.TAG.eq(tag))
                 .fetch();
 
@@ -58,7 +58,7 @@ public class TagDao {
     public void deleteEntry(String tagName, int id) {
 
         dsl.delete(TAGS)
-                .where(TAGS.ID.eq(id))
+                .where(TAGS.RECEIPTID.eq(id))
                 .and(TAGS.TAG.eq(tagName))
                 .execute();
     }
@@ -73,5 +73,10 @@ public class TagDao {
                 .fetchInto(RECEIPTS);
         return receiptRecord;
 
+    }
+
+    // retrieve all entries in the tags table
+    public List<TagsRecord> getAllTags() {
+        return dsl.selectFrom(TAGS).fetch();
     }
 }

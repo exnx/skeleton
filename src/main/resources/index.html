@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    
+<!--    data-require="jquery@*" data-semver="3.1.1" -->
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>My Receipt Tracker</title>
+        <meta name="description" content="a single page application for startup systems">
+        <link rel="stylesheet" href="main.css">
+        
+        <script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+        
+        <script>
+            const api = "http://localhost:8080";
+   
+            // *******  gets all the current receipts in the database and
+            // displays in DOM by making 2 GET requests for receipts and tags
+            $(function(){
+
+             //  GET requests for receipts
+             $.getJSON(api+"/receipts", function(receipts){
+                 for(var i=0; i < receipts.length; i++) {
+                     var receipt = receipts[i];
+
+                     $(`<tr class="receipt">
+                         <td> ${receipt.created} </td>
+                         <td class="merchant"> ${receipt.merchantName} </td>
+                         <td class="amount"> ${receipt.value} </td>
+                         <td class="tags">
+                            <button onclick="addTag(this,${receipt.id})" id="${receipt.id}"
+                            class="add-tag"> + add tag </button>
+                         </td>
+                        </tr>`).appendTo($("#receiptList"));
+                 }
+
+                 // GET requests for all tags
+                 $.getJSON(api+"/tags/getAllTags", function(tags){
+                     for(var i=0; i < tags.length; i++) {
+                         var currTagElem = tags[i];
+                         var currTag = currTagElem.tag;
+
+                         var receiptId = currTagElem.receiptId;
+
+                         // create a button tag to append to the row
+                         var temp = `<button onclick="detag(this,${receiptId})" class="tagValue">
+                            ${currTag}</button>`;
+
+                         // append a button for each existing tag
+                         $("#"+receiptId).after(temp);
+                     }
+                 })
+             })
+         })
+
+            // ********   detags a receipt
+            function detag(button,receiptId) {
+
+                this.receiptId = receiptId;
+                this.tagName = button.innerHTML;
+
+                console.log("the tag name is:" + tagName);
+//                console.log("after detag receipt id: " + receiptId);
+
+                // make a PUT request to database which will remove the tag
+                var url = api+"/tags/"+tagName;
+
+                console.log(url);
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    data: `${receiptId}`,
+                    contentType: "application/json; charset=utf-8",
+                    success: function(result) {
+                        console.log('befoore nuuuuking');
+                        refreshTable(); // should repopulate without the tag
+                    }
+                });  //  end ajax
+            }
+
+        // ********   repopulates the entire table with entries from the database
+        function refreshTable() {
+            // delete current table
+            $(".receipt").remove();
+
+            // repopulate table with receipt info (no tags)
+            console.log(api+"/receipts");
+            $.getJSON(api+"/receipts", function(receipts){
+                for(var i=0; i < receipts.length; i++) {
+                    var receipt = receipts[i];
+
+                    $(`<tr class="receipt">
+                         <td > ${receipt.created} </td>
+                         <td class="merchant"> ${receipt.merchantName} </td>
+                         <td class="amount"> ${receipt.value} </td>
+                         <td class="tags">
+                            <button onclick="addTag(this,${receipt.id})" id="${receipt.id}"
+                            class="add-tag"> + add tag </button>
+                         </td>
+                       </tr>`).appendTo($("#receiptList"));
+                }
+                // repopulate table with tags too
+                $.getJSON(api+"/tags/getAllTags", function(tags){
+                    for(var i=0; i < tags.length; i++) {
+                        var currTagElem = tags[i];
+                        var currTag = currTagElem.tag;
+
+                        var receiptId = currTagElem.receiptId;
+                        var temp = `<button onclick="detag(this,${receiptId})"
+                                    class="tagValue">${currTag}</button>`;
+
+                        // append a button for each existing tag
+                        $("#"+receiptId).after(temp);
+                    }
+                })
+            })
+        }
+
+        // *********  adds an input text after tag button clicked box next to button
+            // and runs a get GET request for tags
+        function addTag(button,receiptId) {
+
+            // create an input box
+            var temp = ` <input type="text" placeholder="tag name"
+                        class="tag_input" id="tag_name" >  </input>  `;
+
+            // append input after the button
+            $(button).after(temp);
+
+            // checks for enter key pressed for the input box, then does a
+            // a GET request for the tags
+            $('#tag_name').keyup(function(event) {
+                if (event.which === 13) {
+
+                    // get the tag name from input box
+                    var tagName = $('#tag_name').val();
+
+                    // PUT request
+                    var url = api+"/tags/"+tagName;
+                    console.log(receiptId);
+                    console.log(url);
+                    $.ajax({
+                        type: "PUT",
+                        url: url,
+                        data: `${receiptId}`,
+                        contentType: "application/json; charset=utf-8",
+                        success: function(result) {
+                            console.log('befoore nuuuuking');
+                            refreshTable();
+                        }
+                    });  //  end ajax
+
+                }
+            });
+        }
+
+        // ******** displays a new receipt form after Add button clicked
+        function addReceipt() {
+
+            var form = document.getElementById('addForm');
+
+            if (form.style.display !== 'block') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        };
+
+        // **********  function called when the save button is clicked
+        function saveForm() {
+
+            // save values from text boxes
+            var merchantName = $('#merchant').val();
+            var amount = $('#amount').val();
+
+            // create a jSON from the user input
+            var jsonObj = {
+                           'merchant' : merchantName,
+                           'amount': parseInt(amount)
+                          }; 
+
+            console.log(jsonObj);
+            console.log('a');
+            url = api+"/receipts";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(jsonObj),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(result) {
+                        refreshTable();
+                }
+            });  //  end ajax
+
+        };  // end function      
+        </script>
+        
+    </head>
+
+    <body>
+        
+        <h1> My Receipts </h1>
+        
+        <button onclick="addReceipt()" id="add-receipt">Add Receipt</button>    
+    
+        <div id="addForm"> 
+        
+            <input type="text" name="merchant" placeholder="enter merchant" id="merchant"><br>
+            <input type="text" name="amount" placeholder="enter amount" id="amount">
+
+            <button onclick="addReceipt()" id="cancel-receipt">Cancel</button> 
+          
+            <button onclick="saveForm()" id="save-receipt" >Save</button> 
+                        
+        </div>
+        
+            <table style="width:90%" id="receiptList">
+
+                    <tr> 
+                        <th> Time </th>
+                        <th> Merchant </th>
+                        <th> $ </th>
+                        <th> Tags </th>
+                    </tr>
+            </table>
+    </body>
+</html>
+
+
+<!--
+comments here
+-->

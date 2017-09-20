@@ -11,5 +11,6 @@ CREATE TABLE receipts (
 CREATE TABLE tags (
   id INT UNSIGNED AUTO_INCREMENT,
   tag VARCHAR(255),
-  receiptId INT UNSIGNED
+  receiptId INT UNSIGNED,
+  PRIMARY KEY (id)
 );

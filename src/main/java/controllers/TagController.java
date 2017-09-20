@@ -2,9 +2,12 @@ package controllers;
 
 import api.CreateReceiptRequest;
 import api.ReceiptResponse;
+import api.TagResponse;
+
 import dao.TagDao;
 import dao.ReceiptDao;
 import generated.tables.records.ReceiptsRecord;
+import generated.tables.records.TagsRecord;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -27,7 +30,13 @@ public class TagController {
 
     }
 
-    // finish this !
+    //return all receipts with their respective tags
+    @GET
+    @Path("/getAllTags")
+    public List<TagResponse> getTags() {
+        List<TagsRecord> tagsRecords = tagDao.getAllTags();
+        return tagsRecords.stream().map(TagResponse::new).collect(toList());
+    }
 
     // prints out all the receipts with tags
     @GET
@@ -43,14 +52,12 @@ public class TagController {
 
         // check if receipt exists
         boolean isReceiptTagged = tagDao.exists(tagName, id);
-
         // if it doesnt exist, create a receipt-tag relationship
         if(!isReceiptTagged) {
 
             int returnId = tagDao.insert(tagName,id);
 
             System.out.println("\n sucessfully inserted id:  " + returnId  + "sucessfully!!!\n");
-
         }
 
         // if it exists, delete this receipt-tag
@@ -59,8 +66,6 @@ public class TagController {
             tagDao.deleteEntry(tagName,id);
 
             System.out.println("\n I ran the deleteEntry in TagDao " + "\n");
-
         }
-
     }
 }
