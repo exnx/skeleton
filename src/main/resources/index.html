@@ -13,15 +13,15 @@
         <script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
         
         <script>
-            const api = "http://localhost:8080";
-   
+            const api = "";//http://ec2-54-202-137-46.us-west-2.compute.amazonaws.com:8080";
+
             // *******  gets all the current receipts in the database and
             // displays in DOM by making 2 GET requests for receipts and tags
             $(function(){
 
              //  GET requests for receipts
              $.getJSON(api+"/receipts", function(receipts){
-                 for(var i=0; i < receipts.length; i++) {
+                 for(var i=0; receipts.length > i; i++) {
                      var receipt = receipts[i];
 
                      $(`<tr class="receipt">
