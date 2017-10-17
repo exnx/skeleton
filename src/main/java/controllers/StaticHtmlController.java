@@ -16,4 +16,11 @@ public class StaticHtmlController {
         Resources.getResource("index.html");
         return Resources.toString(Resources.getResource("index.html"), UTF_8);
     }
+
+    @Path("/main.css")
+    @GET
+    public String getCssPage() throws IOException {
+        Resources.getResource("main.css");
+        return Resources.toString(Resources.getResource("main.css"), UTF_8);
+    }
 }
