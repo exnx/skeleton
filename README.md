@@ -1,11 +1,10 @@
 [![CircleCI](https://circleci.com/gh/amfleming/skeleton.svg?style=svg)](https://circleci.com/gh/amfleming/skeleton)
 
 
-skeleton
-============
-A super simple foundation for building a scalable RESTful HTTP servers
+A receipt tagging web application.  Add receipt information and your own tag classification to organize them.
 
-To build and run with docker:
-1. Run `./gradlew distTar` _this tells gradle to make a .tar file containing the java application code and all dependencies_
-2. Run `docker build -t myapp .` _this runs the Dockerfile, and builds an image tagged with `myapp`.  See all images with `docker images`_
-3. Run `docker run -p 80:8080 myapp` _this runs the `myapp` image, routing port 80 on **Your Machine** to port 8080 in **the container**_
+The application uses uses the Google Vision API.  It allows you to use your camera (on your phone or laptop) to snap a photo of your receipt and then automatically pull the merchant name and total amount.
+
+The code includes an API using Java and jooq for the database storage of the receipt information.
+
+Deployed on Amazon Web Services, with practice using gradle and docker.
